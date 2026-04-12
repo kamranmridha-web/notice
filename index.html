@@ -1,0 +1,1595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Educare Ideal School and College - Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsrsasign/10.9.0/jsrsasign-all-min.js"></script>
+<style>
+  :root {
+    --primary: #EA580C;
+    --primary-light: #F97316;
+    --secondary: #FB923C;
+    --accent: #C2410C;
+    --bg: #F9FAFB;
+    --white: #FFFFFF;
+    --text: #111827;
+    --text-secondary: #6B7280;
+    --error: #EF4444;
+    --border: #E5E7EB;
+    --shadow: 0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.05);
+    --shadow-md: 0 4px 24px rgba(234,88,12,0.12);
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font: 'Plus Jakarta Sans', sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* ── LOGIN ── */
+  #loginScreen {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; background: linear-gradient(135deg, #1E3A8A 0%, #2563EB 100%);
+  }
+  .login-box {
+    background: var(--white); border-radius: 20px; padding: 48px 40px;
+    width: 100%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+    animation: fadeUp 0.5s ease;
+  }
+  .login-logo {
+    width: 56px; height: 56px; background: var(--primary); border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; margin-bottom: 24px;
+  }
+  .login-logo svg { width: 28px; height: 28px; fill: white; }
+  .login-box h1 { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .login-box p { color: var(--text-secondary); font-size: 14px; margin-bottom: 32px; }
+
+  /* ── LAYOUT ── */
+  #appScreen { display: none; min-height: 100vh; }
+  .sidebar {
+    width: 256px; background: var(--white); position: fixed; top: 0; left: 0;
+    height: 100vh; border-right: 1px solid var(--border); display: flex;
+    flex-direction: column; z-index: 100; transition: transform 0.3s;
+  }
+  .sidebar-brand {
+    padding: 24px 20px 20px; border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; gap: 12px;
+  }
+  .brand-icon {
+    width: 40px; height: 40px; background: var(--primary); border-radius: 10px;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .brand-icon svg { width: 20px; height: 20px; fill: white; }
+  .brand-text { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1.2; }
+  .brand-sub { font-size: 11px; color: var(--text-secondary); font-weight: 500; }
+  .sidebar-nav { flex: 1; padding: 16px 12px; overflow-y: auto; }
+  .nav-section { font-size: 10px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.08em; padding: 0 8px; margin: 16px 0 6px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border-radius: var(--radius-sm); cursor: pointer; transition: all 0.15s;
+    font-size: 14px; font-weight: 500; color: var(--text-secondary); margin-bottom: 2px;
+    border: none; background: none; width: 100%; text-align: left;
+  }
+  .nav-item:hover { background: var(--bg); color: var(--text); }
+  .nav-item.active { background: #EFF6FF; color: var(--primary); font-weight: 600; }
+  .nav-item.active svg { color: var(--primary); }
+  .nav-item svg { width: 18px; height: 18px; flex-shrink: 0; }
+  .sidebar-footer { padding: 16px 12px; border-top: 1px solid var(--border); }
+  .logout-btn {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    border-radius: var(--radius-sm); cursor: pointer; color: var(--error);
+    font-size: 14px; font-weight: 500; border: none; background: none; width: 100%;
+    transition: background 0.15s;
+  }
+  .logout-btn:hover { background: #FEF2F2; }
+
+  .main { margin-left: 256px; min-height: 100vh; display: flex; flex-direction: column; }
+  .topbar {
+    background: var(--white); border-bottom: 1px solid var(--border);
+    padding: 0 32px; height: 64px; display: flex; align-items: center;
+    justify-content: space-between; position: sticky; top: 0; z-index: 50;
+  }
+  .topbar-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .admin-badge {
+    background: #EFF6FF; color: var(--primary); font-size: 12px; font-weight: 600;
+    padding: 4px 12px; border-radius: 20px;
+  }
+  .content { padding: 32px; }
+
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; animation: fadeIn 0.2s ease; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .card-body { padding: 24px; }
+  .card-header {
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+    font-size: 15px; font-weight: 700; color: var(--text);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  /* ── STAT CARDS ── */
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; margin-bottom: 28px; }
+  .stat-card {
+    background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow);
+    border: 1px solid var(--border); padding: 24px; display: flex; align-items: center; gap: 16px;
+  }
+  .stat-icon {
+    width: 52px; height: 52px; border-radius: 12px; display: flex;
+    align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .stat-icon.blue { background: #EFF6FF; }
+  .stat-icon.green { background: #ECFDF5; }
+  .stat-icon.orange { background: #FFF7ED; }
+  .stat-icon svg { width: 24px; height: 24px; }
+  .stat-icon.blue svg { color: var(--secondary); }
+  .stat-icon.green svg { color: var(--accent); }
+  .stat-icon.orange svg { color: #F59E0B; }
+  .stat-num { font-size: 28px; font-weight: 800; color: var(--text); line-height: 1; }
+  .stat-label { font-size: 13px; color: var(--text-secondary); margin-top: 4px; font-weight: 500; }
+
+  /* ── FORMS ── */
+  .form-group { margin-bottom: 18px; }
+  .form-label { display: block; font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+  .form-input, .form-select, .form-textarea {
+    width: 100%; padding: 10px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+    font-family: var(--font); font-size: 14px; color: var(--text); background: var(--white);
+    transition: border-color 0.15s, box-shadow 0.15s; outline: none;
+  }
+  .form-input:focus, .form-select:focus, .form-textarea:focus {
+    border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  }
+  .form-textarea { resize: vertical; min-height: 100px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-hint { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  /* ── BUTTONS ── */
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+    border-radius: var(--radius-sm); font-family: var(--font); font-size: 14px;
+    font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; text-decoration: none;
+  }
+  .btn-primary { background: var(--primary); color: white; }
+  .btn-primary:hover { background: var(--primary-light); box-shadow: 0 4px 12px rgba(30,58,138,0.25); }
+  .btn-secondary { background: var(--white); color: var(--text); border: 1.5px solid var(--border); }
+  .btn-secondary:hover { background: var(--bg); }
+  .btn-danger { background: var(--white); color: var(--error); border: 1.5px solid #FEE2E2; }
+  .btn-danger:hover { background: #FEF2F2; }
+  .btn-accent { background: var(--accent); color: white; }
+  .btn-accent:hover { background: #059669; }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+  .btn svg { width: 16px; height: 16px; }
+  .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  /* ── TABLE ── */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th {
+    text-align: left; padding: 12px 16px; background: var(--bg);
+    font-size: 12px; font-weight: 700; color: var(--text-secondary);
+    text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border);
+  }
+  td { padding: 13px 16px; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: #FAFBFF; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px;
+    border-radius: 20px; font-size: 12px; font-weight: 600;
+  }
+  .badge-blue { background: #EFF6FF; color: var(--secondary); }
+  .badge-green { background: #ECFDF5; color: var(--accent); }
+  .badge-orange { background: #FFF7ED; color: #F59E0B; }
+  .badge-pin { background: #EFF6FF; color: var(--primary); }
+
+  /* ── SEARCH ── */
+  .search-wrap { position: relative; }
+  .search-wrap svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--text-secondary); }
+  .search-input { padding-left: 38px !important; }
+
+  /* ── TOGGLE ── */
+  .toggle-wrap { display: flex; align-items: center; gap: 10px; }
+  .toggle { position: relative; width: 44px; height: 24px; }
+  .toggle input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; inset: 0; background: var(--border);
+    border-radius: 24px; transition: 0.2s;
+  }
+  .toggle-slider:before {
+    content: ''; position: absolute; width: 18px; height: 18px; background: white;
+    border-radius: 50%; left: 3px; bottom: 3px; transition: 0.2s;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+  }
+  .toggle input:checked + .toggle-slider { background: var(--primary); }
+  .toggle input:checked + .toggle-slider:before { transform: translateX(20px); }
+  .toggle-label { font-size: 14px; font-weight: 500; color: var(--text); }
+
+  /* ── TARGET SELECTOR ── */
+  .target-group { display: flex; gap: 8px; flex-wrap: wrap; }
+  .target-btn {
+    padding: 8px 16px; border-radius: var(--radius-sm); border: 1.5px solid var(--border);
+    font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    background: var(--white); color: var(--text-secondary); font-family: var(--font);
+  }
+  .target-btn.active { border-color: var(--primary); background: #EFF6FF; color: var(--primary); }
+
+  /* ── UPLOAD ZONE ── */
+  .upload-zone {
+    border: 2px dashed var(--border); border-radius: var(--radius); padding: 32px;
+    text-align: center; cursor: pointer; transition: all 0.15s; background: var(--bg);
+  }
+  .upload-zone:hover, .upload-zone.drag { border-color: var(--secondary); background: #EFF6FF; }
+  .upload-zone svg { width: 36px; height: 36px; color: var(--text-secondary); margin-bottom: 12px; }
+  .upload-zone p { font-size: 14px; color: var(--text-secondary); }
+  .upload-zone strong { color: var(--secondary); }
+
+  /* ── IMAGE PREVIEW ── */
+  .img-preview-wrap { position: relative; display: inline-block; margin-top: 10px; }
+  .img-preview { width: 100%; max-height: 180px; object-fit: cover; border-radius: var(--radius-sm); display: none; }
+  .img-remove {
+    position: absolute; top: 6px; right: 6px; background: var(--error); color: white;
+    border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer;
+    display: none; align-items: center; justify-content: center; font-size: 14px;
+  }
+
+  /* ── ALERTS ── */
+  .alert { padding: 12px 16px; border-radius: var(--radius-sm); font-size: 14px; font-weight: 500; margin-bottom: 16px; }
+  .alert-success { background: #ECFDF5; color: #065F46; border: 1px solid #A7F3D0; }
+  .alert-error { background: #FEF2F2; color: #991B1B; border: 1px solid #FECACA; }
+  .alert-info { background: #EFF6FF; color: #1E40AF; border: 1px solid #BFDBFE; }
+  .alert { display: none; }
+
+  /* ── NOTICE HISTORY CARD ── */
+  .notice-item {
+    display: flex; align-items: flex-start; gap: 16px; padding: 16px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .notice-item:last-child { border-bottom: none; }
+  .notice-thumb {
+    width: 60px; height: 60px; border-radius: var(--radius-sm); object-fit: cover;
+    background: var(--bg); flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .notice-thumb svg { width: 24px; height: 24px; color: var(--text-secondary); }
+  .notice-meta { flex: 1; }
+  .notice-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .notice-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 6px; }
+  .notice-footer { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+
+  /* ── FILTER ROW ── */
+  .filter-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 48px 24px; color: var(--text-secondary); }
+  .empty-state svg { width: 48px; height: 48px; margin-bottom: 12px; opacity: 0.4; }
+  .empty-state p { font-size: 14px; }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200;
+    display: none; align-items: center; justify-content: center; padding: 24px;
+  }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.15s; }
+  .modal {
+    background: var(--white); border-radius: var(--radius); width: 100%;
+    max-width: 480px; box-shadow: 0 20px 60px rgba(0,0,0,0.15); animation: fadeUp 0.2s ease;
+  }
+  .modal-header {
+    padding: 20px 24px; border-bottom: 1px solid var(--border);
+    font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: space-between;
+  }
+  .modal-body { padding: 24px; }
+  .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 10px; }
+  .modal-close { background: none; border: none; cursor: pointer; color: var(--text-secondary); padding: 4px; }
+  .modal-close:hover { color: var(--text); }
+
+  /* ── LOADING ── */
+  .spinner {
+    width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white; border-radius: 50%; animation: spin 0.6s linear infinite; display: none;
+  }
+  .spinner.dark { border-color: rgba(30,58,138,0.2); border-top-color: var(--primary); }
+
+  /* ── CSV ERRORS ── */
+  .csv-error-list { max-height: 180px; overflow-y: auto; }
+  .csv-error-item { font-size: 13px; color: var(--error); padding: 4px 0; border-bottom: 1px solid #FEE2E2; }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── SCROLLBAR ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .sidebar { transform: translateX(-100%); }
+    .sidebar.open { transform: translateX(0); }
+    .main { margin-left: 0; }
+    .form-row { grid-template-columns: 1fr; }
+  }
+  .divider { height: 1px; background: var(--border); margin: 24px 0; }
+  .section-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+  .section-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; }
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 768px) { .two-col { grid-template-columns: 1fr; } }
+  .firebase-warning {
+    background: #FFFBEB; border: 1px solid #FDE68A; border-radius: var(--radius-sm);
+    padding: 12px 16px; font-size: 13px; color: #92400E; margin-bottom: 24px;
+    display: flex; align-items: flex-start; gap: 8px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════ LOGIN SCREEN ══════════════════ -->
+<div id="loginScreen">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+    </div>
+    <h1>Educare Ideal School and College</h1>
+    <p>Admin Control Panel</p>
+    <div id="loginAlert" class="alert alert-error"></div>
+    <div class="form-group">
+      <label class="form-label">Email Address</label>
+      <input type="email" id="loginEmail" class="form-input" placeholder="admin@school.edu"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Password</label>
+      <input type="password" id="loginPassword" class="form-input" placeholder="••••••••"/>
+    </div>
+    <button class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;" onclick="doLogin()">
+      <span id="loginText">Sign In</span>
+      <div class="spinner" id="loginSpinner"></div>
+    </button>
+  </div>
+</div>
+
+<!-- ══════════════════ APP SCREEN ══════════════════ -->
+<div id="appScreen">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">
+        <svg viewBox="0 0 24 24"><path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/></svg>
+      </div>
+      <div>
+        <div class="brand-text">Educare Ideal</div>
+        <div class="brand-sub">School & College</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section">Main</div>
+      <button class="nav-item active" onclick="showPage('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <div class="nav-section">Students</div>
+      <button class="nav-item" onclick="showPage('students')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Student Management
+      </button>
+      <button class="nav-item" onclick="showPage('bulkUpload')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        Bulk Upload (CSV)
+      </button>
+      <div class="nav-section">Notices</div>
+      <button class="nav-item" onclick="showPage('sendNotice')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send Notification
+      </button>
+      <button class="nav-item" onclick="showPage('history')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Notice History
+      </button>
+      <button class="nav-item" onclick="showPage('promotions')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        Promotions
+      </button>
+    </nav>
+    <div class="sidebar-footer">
+      <button class="logout-btn" onclick="doLogout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Logout
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:16px;">
+        <button onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;" id="menuBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <span class="topbar-title" id="topbarTitle">Dashboard</span>
+      </div>
+      <div class="topbar-right">
+        <span class="admin-badge">Admin</span>
+        <span style="font-size:13px;color:var(--text-secondary);" id="adminEmail"></span>
+      </div>
+    </header>
+
+    <div class="content">
+
+      <!-- ── DASHBOARD ── -->
+      <div class="page active" id="page-dashboard">
+        <div class="section-title">Dashboard</div>
+        <div class="section-sub">Overview of your school notification system</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon blue">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div class="stat-num" id="statStudents">—</div>
+              <div class="stat-label">Total Students</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <div>
+              <div class="stat-num" id="statNotices">—</div>
+              <div class="stat-label">Total Notices</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon orange">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div>
+              <div class="stat-num" id="statPinned">—</div>
+              <div class="stat-label">Pinned Notices</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">Recent Notices</div>
+            <div class="card-body" id="dashRecentNotices">
+              <div class="empty-state"><p>Loading...</p></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">Quick Actions</div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <button class="btn btn-primary" onclick="showPage('sendNotice')" style="justify-content:center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+                Send New Notification
+              </button>
+              <button class="btn btn-secondary" onclick="showPage('students')" style="justify-content:center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                Manage Students
+              </button>
+              <button class="btn btn-secondary" onclick="showPage('bulkUpload')" style="justify-content:center;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                Bulk Upload CSV
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── STUDENTS ── -->
+      <div class="page" id="page-students">
+        <div class="section-title">Student Management</div>
+        <div class="section-sub">Add, edit, and manage student records</div>
+
+        <div class="two-col" style="margin-bottom:24px;">
+          <div class="card">
+            <div class="card-header">Add New Student</div>
+            <div class="card-body">
+              <div id="studentFormAlert" class="alert"></div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Student ID *</label>
+                  <input type="text" id="sStudentId" class="form-input" placeholder="e.g. STU2024001"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Full Name *</label>
+                  <input type="text" id="sName" class="form-input" placeholder="Student name"/>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Mobile Number *</label>
+                  <input type="tel" id="sMobile" class="form-input" placeholder="01XXXXXXXXX"/>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Class *</label>
+                  <select id="sClass" class="form-select">
+                    <option value="">Select Class</option>
+                    <option>Play Group</option>
+                    <option>Nursery</option>
+                    <option>KG</option>
+                    <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+                    <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+                    <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+                    <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+                    <option>HSC Batch</option>
+                  </select>
+                </div>
+              </div>
+
+              <div style="display:flex;gap:10px;">
+                <button class="btn btn-primary" onclick="addStudent()" id="addStudentBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span id="addStudentText">Add Student</span>
+                  <div class="spinner" id="addStudentSpinner"></div>
+                </button>
+                <button class="btn btn-secondary" onclick="clearStudentForm()">Clear</button>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">Stats</div>
+            <div class="card-body">
+              <div id="studentStats" style="font-size:14px;color:var(--text-secondary);line-height:2;">
+                Loading...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            All Students
+            <div style="display:flex;gap:10px;align-items:center;">
+              <div class="search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="studentSearch" class="form-input search-input" placeholder="Search students..." oninput="filterStudents()" style="width:220px;"/>
+              </div>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th style="width: 50px;">SL No.</th><th>Student ID</th><th>Name</th><th>Mobile</th><th>Class</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody">
+                <tr><td colspan="6"><div class="empty-state"><p>Loading students...</p></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── BULK UPLOAD ── -->
+      <div class="page" id="page-bulkUpload">
+        <div class="section-title">Bulk Upload</div>
+        <div class="section-sub">Upload multiple students at once using a CSV file</div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">Upload CSV File</div>
+            <div class="card-body">
+              <div id="csvAlert" class="alert"></div>
+              <div class="upload-zone" id="csvDropZone" onclick="document.getElementById('csvFileInput').click()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <p><strong>Click to upload</strong> or drag & drop</p>
+                <p style="margin-top:6px;font-size:12px;">CSV files only</p>
+              </div>
+              <input type="file" id="csvFileInput" accept=".csv" style="display:none;" onchange="handleCSV(event)"/>
+              <div id="csvPreview" style="display:none;margin-top:16px;">
+                <div style="font-size:13px;font-weight:600;margin-bottom:8px;">Preview</div>
+                <div id="csvPreviewContent"></div>
+                <button class="btn btn-primary" onclick="uploadCSV()" style="margin-top:12px;" id="uploadCSVBtn">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  <span id="uploadCSVText">Upload All</span>
+                  <div class="spinner" id="uploadCSVSpinner"></div>
+                </button>
+              </div>
+              <div id="csvErrors" style="display:none;margin-top:12px;">
+                <div style="font-size:13px;font-weight:600;color:var(--error);margin-bottom:6px;">Validation Errors</div>
+                <div class="csv-error-list" id="csvErrorList"></div>
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header">Instructions</div>
+            <div class="card-body">
+              <div class="alert alert-info" style="display:block;">
+                <strong>CSV Format Required:</strong><br/>
+                StudentID, FullName, Mobile, Class
+              </div>
+              <div style="font-size:13px;color:var(--text-secondary);line-height:1.8;">
+                <div style="margin-bottom:12px;"><strong style="color:var(--text);">Rules:</strong></div>
+                <div>✅ First row must be the header row</div>
+                <div>✅ All fields are required</div>
+                <div>✅ Mobile must be a valid number</div>
+                <div>✅ Student ID must be unique</div>
+                <div>🔄 Duplicate IDs will update existing records</div>
+                <div style="margin-top:16px;"><strong style="color:var(--text);">Example:</strong></div>
+                <div style="background:var(--bg);padding:10px;border-radius:var(--radius-sm);font-family:monospace;font-size:12px;margin-top:6px;">
+                  StudentID,FullName,Mobile,Class<br/>
+                  STU001,Rahim Ahmed,01712345678,Class 5<br/>
+                  STU002,Karim Hossain,01812345678,Class 6
+                </div>
+              </div>
+              <div style="margin-top:16px;">
+                <button class="btn btn-secondary btn-sm" onclick="downloadSampleCSV()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                  Download Sample CSV
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SEND NOTICE ── -->
+      <div class="page" id="page-sendNotice">
+        <div class="section-title">Send Notification</div>
+        <div class="section-sub">Create and send a notice to students</div>
+
+        <div class="firebase-warning" style="background: #ECFDF5; border-color: #A7F3D0; color: #065F46;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16" style="flex-shrink:0;margin-top:1px;"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          FCM HTTP v1 is successfully configured using your Service Account. Notifications are ready to send.
+        </div>
+
+        <div class="two-col">
+          <div class="card">
+            <div class="card-header">Notice Details</div>
+            <div class="card-body">
+              <div id="noticeAlert" class="alert"></div>
+              <div class="form-group">
+                <label class="form-label">Notice Title *</label>
+                <input type="text" id="nTitle" class="form-input" placeholder="e.g. Annual Sports Day Announcement"/>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description *</label>
+                <textarea id="nDesc" class="form-textarea" placeholder="Write the full notice content here..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Attach Image (optional)</label>
+                <div class="upload-zone" style="padding:20px;" onclick="document.getElementById('noticeImageInput').click()">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                  <p style="margin-top:6px;"><strong>Upload Image</strong></p>
+                </div>
+                <input type="file" id="noticeImageInput" accept="image/*" style="display:none;" onchange="previewNoticeImage(event)"/>
+                <div class="img-preview-wrap" style="width:100%;">
+                  <img id="noticeImgPreview" class="img-preview"/>
+                  <button class="img-remove" id="noticeImgRemove" onclick="removeNoticeImage()">×</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="card" style="margin-bottom:20px;">
+              <div class="card-header">Target Audience</div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label class="form-label">Send To</label>
+                  <div class="target-group" id="targetGroup">
+                    <button class="target-btn active" onclick="setTarget('all', this)">🌐 All Students</button>
+                    <button class="target-btn" onclick="setTarget('class', this)">📚 Specific Class</button>
+                  </div>
+                </div>
+                <div id="targetClassWrap" class="form-group" style="display:none;">
+                  <label class="form-label">Select Class</label>
+                  <select id="nClass" class="form-select">
+                    <option value="">Select Class</option>
+                    <option>Play Group</option><option>Nursery</option><option>KG</option>
+                    <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+                    <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+                    <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+                    <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+                    <option>HSC Batch</option>
+                  </select>
+                </div>
+
+              </div>
+            </div>
+
+            <div class="card" style="margin-bottom:20px;">
+              <div class="card-header">Pin Notice</div>
+              <div class="card-body">
+                <div class="toggle-wrap">
+                  <label class="toggle">
+                    <input type="checkbox" id="nPinToggle"/>
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label">📌 Pin this notice (max 3 pinned)</span>
+                </div>
+                <div class="form-hint" style="margin-top:8px;">Pinned notices appear at the top of the student app.</div>
+              </div>
+            </div>
+
+            <button class="btn btn-primary" onclick="sendNotification()" id="sendBtn" style="width:100%;justify-content:center;padding:14px;font-size:15px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              <span id="sendBtnText">Send Notice</span>
+              <div class="spinner" id="sendSpinner"></div>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── HISTORY ── -->
+      <div class="page" id="page-history">
+        <div class="section-title">Notice History</div>
+        <div class="section-sub">View and manage all sent notifications</div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-body" style="padding:16px 24px;">
+            <div class="filter-row">
+              <div class="search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="historySearch" class="form-input search-input" placeholder="Search notices..." oninput="filterHistory()" style="width:220px;"/>
+              </div>
+              <select id="historyClassFilter" class="form-select" onchange="filterHistory()" style="width:160px;">
+                <option value="">All Classes</option>
+                <option>Play Group</option><option>Nursery</option><option>KG</option>
+                <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+                <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+                <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+                <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+                <option>HSC Batch</option>
+                <option value="all">All Students</option>
+              </select>
+              <input type="date" id="historyDateFilter" class="form-input" onchange="filterHistory()" style="width:160px;"/>
+              <button class="btn btn-secondary btn-sm" onclick="clearHistoryFilters()">Clear Filters</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body" id="historyList">
+            <div class="empty-state"><p>Loading notices...</p></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── PROMOTIONS ── -->
+      <div class="page" id="page-promotions">
+        <div class="section-title">Student Promotions</div>
+        <div class="section-sub">Upgrade students to the next class or graduate the HSC Batch</div>
+
+        <div class="alert alert-info" style="display:block;margin-bottom:24px;">
+          <strong>How it works:</strong> Click "Promote" next to a class to move all its students to the next level. 
+          Students in <b>Class 12</b> will move to <b>HSC Batch</b>. Promoting the <b>HSC Batch</b> will permanently remove them from the system.
+        </div>
+
+        <div class="card">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Current Class</th><th>Next Level</th><th>Student Count</th><th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="promotionTableBody">
+                <!-- Generated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+
+    <footer style="margin-top:auto; padding: 20px 32px; border-top: 1px solid var(--border); background: var(--white); display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: var(--text-secondary);">
+      <span>&copy; 2026 Educare Ideal School and College. All rights reserved.</span>
+      <span>Developed by <strong>Kamran Mridha Raaj</strong></span>
+    </footer>
+  </div><!-- /main -->
+</div><!-- /appScreen -->
+
+<!-- ── EDIT STUDENT MODAL ── -->
+<div class="modal-overlay" id="editModal">
+  <div class="modal">
+    <div class="modal-header">
+      Edit Student
+      <button class="modal-close" onclick="closeEditModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Student ID</label>
+          <input type="text" id="editStudentId" class="form-input" readonly style="background:var(--bg);"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="editName" class="form-input"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Mobile</label>
+          <input type="tel" id="editMobile" class="form-input"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Class</label>
+          <select id="editClass" class="form-select">
+            <option>Play Group</option><option>Nursery</option><option>KG</option>
+            <option>Class 1</option><option>Class 2</option><option>Class 3</option>
+            <option>Class 4</option><option>Class 5</option><option>Class 6</option>
+            <option>Class 7</option><option>Class 8</option><option>Class 9</option>
+            <option>Class 10</option><option>Class 11</option><option>Class 12</option>
+            <option>HSC Batch</option>
+          </select>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditStudent()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── DELETE CONFIRM MODAL ── -->
+<div class="modal-overlay" id="deleteModal">
+  <div class="modal">
+    <div class="modal-header">
+      Confirm Delete
+      <button class="modal-close" onclick="closeDeleteModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:14px;color:var(--text-secondary);">Are you sure you want to delete student <strong id="deleteStudentName"></strong>? This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+      <button class="btn" style="background:var(--error);color:white;" onclick="confirmDelete()">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════ FIREBASE + LOGIC ══════════════════ -->
+<script type="module">
+// ──────────────────────────────────────────────
+// 🔧 FIREBASE CONFIG — Replace with your config
+// ──────────────────────────────────────────────
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, collection, getDocs, addDoc, doc, setDoc, updateDoc,
+  deleteDoc, query, orderBy, where, getCountFromServer, serverTimestamp, getDoc, writeBatch }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAb1rQubO76vNoaFz-5VNPiifxupcBPUIw",
+  authDomain: "school-notice-app-c2530.firebaseapp.com",
+  projectId: "school-notice-app-c2530",
+  storageBucket: "school-notice-app-c2530.firebasestorage.app",
+  messagingSenderId: "884457509439",
+  appId: "1:884457509439:web:b2e20ca7c62b50441fde8a"
+};
+// FCM V1 Configuration — Get these from your Service Account JSON
+const FCM_V1_CONFIG = {
+  projectId:   "school-notice-app-c2530",
+  clientEmail: "firebase-adminsdk-fbsvc@school-notice-app-c2530.iam.gserviceaccount.com",
+  privateKey:  "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQC3DsJ5m/Xz5cW2\neDIXcaQo5SSJK0ZVgZjfx9IOOyhGADzaQuugtqIdFWgnxh7XUsnGFD/tD1vOZOZj\n30Xd8OPpWQ2v0+AB7GQhqVOaS6pXaEoYbO+XmUzq9jfqth9tdgGljNK/RxSV55r5\nc4GglMy18k8wo6NwTakHVWgZ/yJuye4pHC2fVbmAtsr2xYqEP+PRa49yN+FTN/8v\nsVOWRnyJ2AMZLqIFdWl/f7ob0KFWZCy0YRKJElJ4+duRcylQgG7w0ZHxEW5lCxt8\n5WgkkTvGRaCoPQhaFX7R3BydFgUsb/8YK566w/F0mnjw0STlydBV1/fEFMk56i22\nfokibE3tAgMBAAECggEAT6QXvvG3/T8TmBHN9T4nRfV/QkA2DuBdwso8HJ3nJSFY\nWDryKY8bk5yrHlbHNzXY/Bj2QOxELFTgmUXbrzXs6ioo1rzOwfd3DuAMs93Eg9en\nGN5YFLQI71ZkuHQ40xYanExaqgZCMf+8AFgc5uCl+WisxEQFSMg4yCyDqH/EGr96\nMlwQyX3WaCPH2RxLVZzhreCQJG9KkgGgQ7bJ4YQf8BASpskNXKVQ7Dxlgw+rm/d5\n+1/UvP02r3ie37fqLEzGKXxjF7Q3J7JmRpNu3TAfMyq8xokONDM0aCdPkUwSrPX2\nekFprhtScQIgRH2nQR7BQda9y6LUpb7tb5YNz+Ty/wKBgQDeoO3eI9ICHaMiwkO1\nUOhK1ARKVmubMmvoBxwUIoOSyHwl9572AKN2WTx2O1PaZb861Yj9pMRcha7i7zon\njngHFCztNe5hG0NvyRNs8uyL1QB1B4ccFCl8pB33fI/HESPTM05wWik2QVc2wA50\nD0qAwJykSLvAwcA7nBXlZEnICwKBgQDSf1kh2Bq3zgJeeFIUwFfnne2bOwV2aplQ\ng8XZBJ3Cqme49TpbU71ch6U38wbDDjpOsjxpOojfKUYAxQjHnHMA5f1FDPSUkqPg\nyuk+v0i3gj4OMr9sr6PqHzxqu2cOU7+tGO+Wc6E/zQ9FPNU07o9FcyiE9qqmVoZw\n1t0K423k5wKBgCRIhBv1KI/xtpm+oXxWgFVZso1PAmCb2hxJtFjPuzPb+ufRMJYV\nSo7KQmFej+8DMCRtktML3HjbzMHtjUPPI167+gp7BKvM3rPESKcz/DtZ7qYkIPAB\nlTVcJgokweYGtBkCvqDvANJ32bfxmyltKI5NVfosZHUo3qSYbrUhICk7AoGAfNlp\nrWg22KQIxa2JyaMXwFnsbzC/ma+6RYYS2Bgj1i0qHgrdVQPDAdm2hgvQC+spbDnN\nGQDN48bgLV6wSWyizXqcENORUXn0V0UiuMPNxoIqelNhNH6ssxVZyVhj1JyZyHpM\nyKjGkEf48bEWKDICqkeWVd7T8prJXK4kJuwj5ysCgYBj5cY6AkZhq4dHZUocWYLK\npO17VYJzV1jlKsUFEkE4puB+KRwZ6lV4DvekWbrxzogiBd3LaTh4l8dHW+LOxEuk\nnnjqDnrBgZzYDeynY+YaGW4Q8Vrw7GYsw6L++Z1rOh/08c6U0BmATFnBd+NydNFU\nMyxJdmOUdMnlmJAdrKD2eg==\n-----END PRIVATE KEY-----\n"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const IMGBB_API_KEY = "b31211aa42f2907bca6297d70899b49a";
+
+// ── STATE ──
+let allStudents = [];
+let allNotices = [];
+let editingStudentId = null;
+let deletingStudentId = null;
+let noticeImageFile = null;
+let csvParsedData = [];
+let currentTarget = 'all';
+
+// ── AUTH ──
+onAuthStateChanged(auth, user => {
+  if (user) {
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('appScreen').style.display = 'block';
+    document.getElementById('adminEmail').textContent = user.email;
+    loadDashboard();
+    loadStudents();
+    loadNotices();
+    renderPromotionTable();
+  } else {
+    document.getElementById('loginScreen').style.display = 'flex';
+    document.getElementById('appScreen').style.display = 'none';
+  }
+});
+
+window.doLogin = async function() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pwd = document.getElementById('loginPassword').value;
+  const alert = document.getElementById('loginAlert');
+  const spinner = document.getElementById('loginSpinner');
+  const text = document.getElementById('loginText');
+  if (!email || !pwd) { showEl(alert, 'alert-error', 'Please enter email and password.'); return; }
+  spinner.style.display = 'block'; text.style.display = 'none'; hideEl(alert);
+  try {
+    await signInWithEmailAndPassword(auth, email, pwd);
+  } catch(e) {
+    console.error('Login error:', e);
+    showEl(alert, 'alert-error', e.message || 'Invalid email or password.');
+  } finally {
+    spinner.style.display = 'none'; text.style.display = 'block';
+  }
+};
+
+// Handle Enter Key for Login
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && document.getElementById('loginScreen').style.display !== 'none') {
+    doLogin();
+  }
+});
+
+window.doLogout = async function() {
+  await signOut(auth);
+};
+
+// ── NAVIGATION ──
+window.showPage = function(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  const titles = { dashboard:'Dashboard', students:'Student Management', bulkUpload:'Bulk Upload', sendNotice:'Send Notification', history:'Notice History' };
+  document.getElementById('topbarTitle').textContent = titles[page] || '';
+  event.currentTarget?.classList.add('active');
+  if (page === 'dashboard') loadDashboard();
+  if (page === 'history') renderHistory();
+  if (page === 'promotions') renderPromotionTable();
+  if (page === 'students') prepareNewStudentForm();
+};
+
+window.prepareNewStudentForm = async function() {
+  clearStudentForm();
+  const nextId = await getNextStudentId();
+  const idField = document.getElementById('sStudentId');
+  if (idField) idField.value = nextId;
+};
+
+async function getNextStudentId() {
+  try {
+    const docRef = doc(db, 'metadata', 'students');
+    const d = await getDoc(docRef);
+    let count = 0;
+    
+    if (d.exists()) {
+      count = d.data().lastId || 0;
+    } else {
+      // Fallback: scan existing students
+      const snap = await getDocs(collection(db, 'students'));
+      snap.forEach(doc => {
+        const sid = doc.data().studentId || "";
+        // Match numbers at the end of the string
+        const match = sid.match(/(\d+)$/);
+        if (match) {
+          const idNum = parseInt(match[1]);
+          if (!isNaN(idNum) && idNum > count) count = idNum;
+        }
+      });
+    }
+    const next = count + 1;
+    return `EISC-${next.toString().padStart(4, '0')}`;
+  } catch(e) { 
+    console.error('Error in getNextStudentId:', e); 
+    return 'EISC-0001'; // Default if anything fails
+  }
+}
+
+window.toggleSidebar = function() {
+  document.getElementById('sidebar').classList.toggle('open');
+};
+
+// ── DASHBOARD ──
+async function loadDashboard() {
+  try {
+    const sSnap = await getCountFromServer(collection(db, 'students'));
+    const nSnap = await getCountFromServer(collection(db, 'notifications'));
+    document.getElementById('statStudents').textContent = sSnap.data().count;
+    document.getElementById('statNotices').textContent = nSnap.data().count;
+    const pinQ = query(collection(db, 'notifications'), where('isPinned', '==', true));
+    const pinSnap = await getCountFromServer(pinQ);
+    document.getElementById('statPinned').textContent = pinSnap.data().count;
+    renderDashRecentNotices();
+  } catch(e) { console.error(e); }
+}
+
+function renderDashRecentNotices() {
+  const el = document.getElementById('dashRecentNotices');
+  const recent = [...allNotices].slice(0, 4);
+  if (!recent.length) { el.innerHTML = '<div class="empty-state"><p>No notices yet</p></div>'; return; }
+  el.innerHTML = recent.map(n => `
+    <div class="notice-item">
+      <div>
+        <div class="notice-title">${n.title}</div>
+        <div class="notice-footer" style="margin-top:4px;">
+          <span style="font-size:12px;color:var(--text-secondary);">${fmtDate(n.timestamp)}</span>
+          ${n.isPinned ? '<span class="badge badge-pin">📌 Pinned</span>' : ''}
+          <span class="badge badge-blue">${n.target}</span>
+        </div>
+      </div>
+    </div>`).join('');
+}
+
+// ── STUDENTS ──
+async function loadStudents() {
+  try {
+    const snap = await getDocs(query(collection(db, 'students'), orderBy('createdAt', 'desc')));
+    allStudents = snap.docs.map(d => ({ docId: d.id, ...d.data() }));
+    renderStudentTable(allStudents);
+    renderStudentStats();
+    renderPromotionTable();
+  } catch(e) { console.error(e); }
+}
+
+function renderStudentTable(students) {
+  const tbody = document.getElementById('studentTableBody');
+  if (!students.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg><p>No students found</p></div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = students.map((s, index) => `
+    <tr>
+      <td style="font-weight:700; color:var(--text-secondary);">${index + 1}</td>
+      <td><span style="font-family:monospace;font-size:13px;">${s.studentId}</span></td>
+      <td style="font-weight:600;">${s.name}</td>
+      <td>${s.mobile}</td>
+      <td><span class="badge badge-blue">${s.class}</span></td>
+      <td>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-secondary btn-sm" onclick="openEditModal('${s.docId}')">Edit</button>
+          <button class="btn btn-danger btn-sm" onclick="openDeleteModal('${s.docId}','${s.name}')">Delete</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderStudentStats() {
+  const classes = {};
+  allStudents.forEach(s => { classes[s.class] = (classes[s.class] || 0) + 1; });
+  const el = document.getElementById('studentStats');
+  el.innerHTML = `<div><strong>Total:</strong> ${allStudents.length} students</div>` +
+    Object.entries(classes).sort((a,b) => a[0].localeCompare(b[0])).map(([c,n]) =>
+      `<div>${c}: <strong>${n}</strong></div>`).join('');
+}
+
+window.filterStudents = function() {
+  const q = document.getElementById('studentSearch').value.toLowerCase();
+  renderStudentTable(allStudents.filter(s =>
+    s.name.toLowerCase().includes(q) || s.studentId.toLowerCase().includes(q) ||
+    s.mobile.includes(q) || s.class.toLowerCase().includes(q)
+  ));
+};
+
+window.addStudent = async function() {
+  const id = document.getElementById('sStudentId').value.trim();
+  const name = document.getElementById('sName').value.trim();
+  const mobile = document.getElementById('sMobile').value.trim();
+  const cls = document.getElementById('sClass').value;
+  const alert = document.getElementById('studentFormAlert');
+  if (!id || !name || !mobile || !cls) { showEl(alert, 'alert-error', 'All fields are required.'); return; }
+  if (!/^01[0-9]{9}$/.test(mobile)) { showEl(alert, 'alert-error', 'Invalid mobile number. Use format: 01XXXXXXXXX'); return; }
+  if (allStudents.find(s => s.studentId === id)) { showEl(alert, 'alert-error', 'Student ID already exists.'); return; }
+  const btn = document.getElementById('addStudentBtn');
+  const spinner = document.getElementById('addStudentSpinner');
+  const text = document.getElementById('addStudentText');
+  btn.disabled = true; spinner.style.display = 'block'; text.style.display = 'none';
+  try {
+    await setDoc(doc(db, 'students', id), { studentId: id, name, mobile, class: cls, createdAt: serverTimestamp() });
+    // Update metadata counter
+    const idNum = parseInt(id.split('-')[1]);
+    await updateDoc(doc(db, 'metadata', 'students'), { lastId: idNum }, { merge: true }).catch(() => {
+        setDoc(doc(db, 'metadata', 'students'), { lastId: idNum });
+    });
+
+    showEl(alert, 'alert-success', `Student "${name}" added successfully! ID: ${id}`);
+    
+    // Refresh student list and the "Next ID" for the form
+    await loadStudents();
+    await prepareNewStudentForm(); 
+  } catch(e) {
+    showEl(alert, 'alert-error', 'Failed to add student. ' + e.message);
+  } finally {
+    btn.disabled = false; spinner.style.display = 'none'; text.style.display = 'block';
+  }
+};
+
+window.clearStudentForm = function() {
+  ['sStudentId','sName','sMobile'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sClass').value = '';
+  hideEl(document.getElementById('studentFormAlert'));
+};
+
+window.openEditModal = function(docId) {
+  const s = allStudents.find(x => x.docId === docId);
+  if (!s) return;
+  editingStudentId = docId;
+  document.getElementById('editStudentId').value = s.studentId;
+  document.getElementById('editName').value = s.name;
+  document.getElementById('editMobile').value = s.mobile;
+  document.getElementById('editClass').value = s.class;
+  document.getElementById('editModal').classList.add('open');
+};
+
+window.closeEditModal = function() {
+  document.getElementById('editModal').classList.remove('open');
+  editingStudentId = null;
+};
+
+window.saveEditStudent = async function() {
+  if (!editingStudentId) return;
+  const s = allStudents.find(x => x.docId === editingStudentId);
+  const name = document.getElementById('editName').value.trim();
+  const mobile = document.getElementById('editMobile').value.trim();
+  const cls = document.getElementById('editClass').value;
+  if (!name || !mobile || !cls) { alert('All fields required'); return; }
+  try {
+    await updateDoc(doc(db, 'students', s.studentId), { name, mobile, class: cls });
+    closeEditModal();
+    await loadStudents();
+  } catch(e) { alert('Update failed: ' + e.message); }
+};
+
+window.openDeleteModal = function(docId, name) {
+  deletingStudentId = docId;
+  document.getElementById('deleteStudentName').textContent = name;
+  document.getElementById('deleteModal').classList.add('open');
+};
+
+window.closeDeleteModal = function() {
+  document.getElementById('deleteModal').classList.remove('open');
+  deletingStudentId = null;
+};
+
+window.confirmDelete = async function() {
+  if (!deletingStudentId) return;
+  const s = allStudents.find(x => x.docId === deletingStudentId);
+  try {
+    await deleteDoc(doc(db, 'students', s.studentId));
+    closeDeleteModal();
+    await loadStudents();
+  } catch(e) { alert('Delete failed: ' + e.message); }
+};
+
+// ── BULK UPLOAD ──
+window.handleCSV = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    parseCSV(text);
+  };
+  reader.readAsText(file);
+};
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n').map(l => l.trim()).filter(l => l);
+  const errors = [];
+  csvParsedData = [];
+  if (!lines.length) { showCSVError(['Empty file']); return; }
+  const header = lines[0].toLowerCase().split(',').map(h => h.trim());
+  const expected = ['studentid','fullname','mobile','class'];
+  const hasHeader = expected.every((h, i) => header[i] === h);
+  const start = hasHeader ? 1 : 0;
+  lines.slice(start).forEach((line, i) => {
+    const row = line.split(',').map(c => c.trim());
+    const rowNum = start + i + 1;
+    if (row.length < 4) { errors.push(`Row ${rowNum}: Missing fields`); return; }
+    const [studentId, fullName, mobile, cls] = row;
+    if (!studentId) errors.push(`Row ${rowNum}: Missing Student ID`);
+    if (!fullName) errors.push(`Row ${rowNum}: Missing Full Name`);
+    if (!mobile || !/^01[0-9]{9}$/.test(mobile)) errors.push(`Row ${rowNum}: Invalid mobile "${mobile}"`);
+    if (!cls) errors.push(`Row ${rowNum}: Missing Class`);
+    if (studentId && fullName && mobile && cls)
+      csvParsedData.push({ studentId, name: fullName, mobile, class: cls });
+  });
+  const errEl = document.getElementById('csvErrors');
+  const previewEl = document.getElementById('csvPreview');
+  const alertEl = document.getElementById('csvAlert');
+  if (errors.length) {
+    errEl.style.display = 'block';
+    document.getElementById('csvErrorList').innerHTML = errors.map(e => `<div class="csv-error-item">⚠ ${e}</div>`).join('');
+  } else { errEl.style.display = 'none'; }
+  if (csvParsedData.length) {
+    previewEl.style.display = 'block';
+    document.getElementById('csvPreviewContent').innerHTML = `
+      <div class="alert alert-info" style="display:block;">Found <strong>${csvParsedData.length}</strong> valid records. ${errors.length ? `<span style="color:var(--error)">${errors.length} errors will be skipped.</span>` : ''}</div>`;
+    hideEl(alertEl);
+  } else {
+    previewEl.style.display = 'none';
+    showEl(alertEl, 'alert-error', 'No valid records found in the CSV file.');
+  }
+}
+
+function showCSVError(errors) {
+  document.getElementById('csvErrors').style.display = 'block';
+  document.getElementById('csvErrorList').innerHTML = errors.map(e => `<div class="csv-error-item">${e}</div>`).join('');
+}
+
+window.uploadCSV = async function() {
+  if (!csvParsedData.length) return;
+  const btn = document.getElementById('uploadCSVBtn');
+  const spinner = document.getElementById('uploadCSVSpinner');
+  const text = document.getElementById('uploadCSVText');
+  btn.disabled = true; spinner.style.display = 'block'; text.style.display = 'none';
+  let added = 0, updated = 0;
+  try {
+    for (const s of csvParsedData) {
+      const existing = allStudents.find(x => x.studentId === s.studentId);
+      await setDoc(doc(db, 'students', s.studentId), { ...s, updatedAt: serverTimestamp() }, { merge: true });
+      existing ? updated++ : added++;
+    }
+    showEl(document.getElementById('csvAlert'), 'alert-success', `✅ Done! Added: ${added}, Updated: ${updated}`);
+    document.getElementById('csvPreview').style.display = 'none';
+    csvParsedData = [];
+    await loadStudents();
+  } catch(e) {
+    showEl(document.getElementById('csvAlert'), 'alert-error', 'Upload failed: ' + e.message);
+  } finally {
+    btn.disabled = false; spinner.style.display = 'none'; text.style.display = 'block';
+  }
+};
+
+window.downloadSampleCSV = function() {
+  const csv = `StudentID,FullName,Mobile,Class\nSTU001,Rahim Ahmed,01712345678,Class 5\nSTU002,Karim Hossain,01812345678,Class 6\nSTU003,Fatema Begum,01912345678,Class 7`;
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = 'sample_students.csv'; a.click();
+};
+
+// ── SEND NOTIFICATION ──
+window.setTarget = function(target, btn) {
+  currentTarget = target;
+  document.querySelectorAll('.target-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('targetClassWrap').style.display = target !== 'all' ? 'block' : 'none';
+};
+
+window.previewNoticeImage = function(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  noticeImageFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('noticeImgPreview');
+    img.src = e.target.result; img.style.display = 'block';
+    document.getElementById('noticeImgRemove').style.display = 'flex';
+  };
+  reader.readAsDataURL(file);
+};
+
+window.removeNoticeImage = function() {
+  noticeImageFile = null;
+  document.getElementById('noticeImgPreview').style.display = 'none';
+  document.getElementById('noticeImgRemove').style.display = 'none';
+  document.getElementById('noticeImageInput').value = '';
+};
+
+window.sendNotification = async function() {
+  const title = document.getElementById('nTitle').value.trim();
+  const desc = document.getElementById('nDesc').value.trim();
+  const isPinned = document.getElementById('nPinToggle').checked;
+  const alertEl = document.getElementById('noticeAlert');
+  if (!title || !desc) { showEl(alertEl, 'alert-error', 'Title and description are required.'); return; }
+  // Check pin limit
+  if (isPinned) {
+    const pinQ = query(collection(db, 'notifications'), where('isPinned', '==', true));
+    const pinSnap = await getCountFromServer(pinQ);
+    if (pinSnap.data().count >= 3) { showEl(alertEl, 'alert-error', 'Maximum 3 pinned notices allowed. Unpin an existing notice first.'); return; }
+  }
+  // Build target string
+  let target = 'all_students';
+  if (currentTarget === 'class') {
+    const cls = document.getElementById('nClass').value;
+    if (!cls) { showEl(alertEl, 'alert-error', 'Please select a class.'); return; }
+    target = 'class_' + cls.replace(/\s+/g, '_').toLowerCase();
+  }
+  const btn = document.getElementById('sendBtn');
+  const spinner = document.getElementById('sendSpinner');
+  const text = document.getElementById('sendBtnText');
+  btn.disabled = true; spinner.style.display = 'block'; text.style.display = 'none';
+  hideEl(alertEl);
+
+  try {
+    let imageUrl = '';
+
+    if (noticeImageFile) {
+        // Step 1: Convert image to Base64 (More reliable for some APIs)
+        const base64Image = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result.split(',')[1]);
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(noticeImageFile);
+        });
+
+        // Step 2: Upload to ImgBB
+        const formData = new FormData();
+        formData.append('image', base64Image);
+        
+        const resp = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!resp.ok) {
+            const errorText = await resp.text();
+            throw new Error(`ImgBB Server Error (${resp.status}): ${errorText}`);
+        }
+
+        const data = await resp.json();
+        if (data.success) {
+            imageUrl = data.data.url;
+        } else {
+            throw new Error('Image host error: ' + (data.error?.message || 'Unknown error'));
+        }
+    }
+
+    const noticeData = { 
+        title, 
+        description: desc, 
+        imageUrl, 
+        target, 
+        isPinned, 
+        timestamp: serverTimestamp() 
+    };
+    
+    await addDoc(collection(db, 'notifications'), noticeData);
+    // Send FCM push
+    await sendFCMPush(title, desc, target, FCM_V1_CONFIG);
+    showEl(alertEl, 'alert-success', '✅ Notification sent successfully!');
+    // Reset form
+    document.getElementById('nTitle').value = '';
+    document.getElementById('nDesc').value = '';
+    document.getElementById('nPinToggle').checked = false;
+    removeNoticeImage();
+    
+    // Reset Target to 'all'
+    const allBtn = document.querySelector('.target-btn[onclick*="\'all\'"]');
+    if (allBtn) setTarget('all', allBtn);
+    
+    await loadNotices();
+    await loadDashboard();
+  } catch(e) {
+    showEl(alertEl, 'alert-error', 'Failed to send: ' + e.message);
+  } finally {
+    btn.disabled = false; spinner.style.display = 'none'; text.style.display = 'block';
+  }
+};
+
+async function sendFCMPush(title, body, topic, config) {
+  if (!config.privateKey || config.privateKey.includes('YOUR_PRIVATE_KEY')) {
+    console.warn('FCM v1 config missing. Notification not sent to FCM.');
+    return;
+  }
+  try {
+    const accessToken = await getFCMV1AccessToken(config);
+    const endpoint = `https://fcm.googleapis.com/v1/projects/${config.projectId}/messages:send`;
+    
+    const message = {
+      message: {
+        topic: topic,
+        notification: { title, body },
+        data: { topic }
+      }
+    };
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + accessToken
+      },
+      body: JSON.stringify(message)
+    });
+    
+    if (!response.ok) {
+      const err = await response.json();
+      throw new Error(err.error?.message || 'FCM v1 error');
+    }
+  } catch(e) { 
+    console.warn('FCM v1 push failed:', e);
+    throw e;
+  }
+}
+
+async function getFCMV1AccessToken(config) {
+  const header = JSON.stringify({ alg: 'RS256', typ: 'JWT' });
+  const now = Math.floor(Date.now() / 1000);
+  const payload = JSON.stringify({
+    iss: config.clientEmail,
+    scope: "https://www.googleapis.com/auth/firebase.messaging",
+    aud: "https://oauth2.googleapis.com/token",
+    exp: now + 3600,
+    iat: now
+  });
+
+  // Sign JWT using jsrsasign
+  const signedJwt = KJUR.jws.JWS.sign('RS256', header, payload, config.privateKey);
+
+  // Exchange for Access Token
+  const response = await fetch("https://oauth2.googleapis.com/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: `grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion=${signedJwt}`
+  });
+  
+  const data = await response.json();
+  if (data.error) throw new Error(data.error_description || data.error);
+  return data.access_token;
+}
+
+// ── NOTICES ──
+async function loadNotices() {
+  try {
+    const snap = await getDocs(query(collection(db, 'notifications'), orderBy('timestamp', 'desc')));
+    allNotices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderHistory();
+    renderDashRecentNotices();
+  } catch(e) { console.error(e); }
+}
+
+function renderHistory() {
+  const search = document.getElementById('historySearch')?.value.toLowerCase() || '';
+  const cls = document.getElementById('historyClassFilter')?.value || '';
+  const date = document.getElementById('historyDateFilter')?.value || '';
+  let notices = [...allNotices].sort((a,b) => {
+    if (a.isPinned !== b.isPinned) return a.isPinned ? -1 : 1;
+    return (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0);
+  });
+  if (search) notices = notices.filter(n => n.title.toLowerCase().includes(search) || n.description?.toLowerCase().includes(search));
+  if (cls) notices = notices.filter(n => cls === 'all' ? n.target === 'all_students' : n.target.includes(cls.replace(/\s+/g,'_').toLowerCase()));
+  if (date) notices = notices.filter(n => n.timestamp && new Date(n.timestamp.seconds*1000).toISOString().startsWith(date));
+  const el = document.getElementById('historyList');
+  if (!notices.length) { el.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>No notices found</p></div>'; return; }
+  el.innerHTML = notices.map(n => `
+    <div class="notice-item">
+      <div class="notice-thumb">
+        ${n.imageUrl ? `<img src="${n.imageUrl}" style="width:60px;height:60px;border-radius:8px;object-fit:cover;"/>` : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>`}
+      </div>
+      <div class="notice-meta">
+        <div class="notice-title">${n.title}</div>
+        <div class="notice-desc">${(n.description||'').substring(0,80)}${(n.description||'').length>80?'...':''}</div>
+        <div class="notice-footer">
+          <span style="font-size:12px;color:var(--text-secondary);">${fmtDate(n.timestamp)}</span>
+          <span class="badge badge-blue">${formatTarget(n.target)}</span>
+          ${n.isPinned ? '<span class="badge badge-pin">📌 Pinned</span>' : ''}
+        </div>
+      </div>
+      <div style="flex-shrink:0;">
+        <button class="btn btn-danger btn-sm" onclick="deleteNotice('${n.id}')">Delete</button>
+      </div>
+    </div>`).join('');
+}
+
+window.filterHistory = function() { renderHistory(); };
+window.clearHistoryFilters = function() {
+  document.getElementById('historySearch').value = '';
+  document.getElementById('historyClassFilter').value = '';
+  document.getElementById('historyDateFilter').value = '';
+  renderHistory();
+};
+
+window.deleteNotice = async function(id) {
+  if (!confirm('Delete this notice?')) return;
+  try {
+    await deleteDoc(doc(db, 'notifications', id));
+    await loadNotices();
+    await loadDashboard();
+  } catch(e) { alert('Delete failed: ' + e.message); }
+};
+
+// ── HELPERS ──
+function showEl(el, cls, msg) {
+  el.className = 'alert ' + cls; el.textContent = msg; el.style.display = 'block';
+}
+function hideEl(el) { el.style.display = 'none'; }
+function fmtDate(ts) {
+  if (!ts) return 'Unknown';
+  const d = ts.seconds ? new Date(ts.seconds * 1000) : new Date(ts);
+  return d.toLocaleDateString('en-BD', { day:'2-digit', month:'short', year:'numeric' });
+}
+function formatTarget(t) {
+  if (!t || t === 'all_students') return '🌐 All';
+  return t.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+}
+
+// ── PROMOTIONS ──
+const CLASS_ORDER = [
+  'Play Group', 'Nursery', 'KG', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 
+  'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12',
+  'HSC Batch'
+];
+
+window.renderPromotionTable = function() {
+  const tbody = document.getElementById('promotionTableBody');
+  if (!tbody) return;
+  const stats = {};
+  allStudents.forEach(s => { stats[s.class] = (stats[s.class] || 0) + 1; });
+
+  tbody.innerHTML = CLASS_ORDER.map((cls, idx) => {
+    const count = stats[cls] || 0;
+    const nextCls = idx < CLASS_ORDER.length - 1 ? CLASS_ORDER[idx + 1] : 'REMOVE (Graduate)';
+    const btnClass = cls === 'HSC Batch' ? 'btn-danger' : 'btn-primary';
+    const btnText = cls === 'HSC Batch' ? 'Graduate All' : 'Promote Class';
+    
+    return `
+      <tr>
+        <td style="font-weight:600;">${cls}</td>
+        <td><span class="badge ${cls === 'HSC Batch' ? 'badge-orange' : 'badge-blue'}">${nextCls}</span></td>
+        <td><strong>${count}</strong> students</td>
+        <td>
+          <button class="btn ${btnClass} btn-sm" onclick="promoteClass('${cls}')" ${count === 0 ? 'disabled' : ''}>
+            ${btnText}
+          </button>
+        </td>
+      </tr>`;
+  }).join('');
+};
+
+window.promoteClass = async function(fromClass) {
+  const studentsToMove = allStudents.filter(s => s.class === fromClass);
+  if (!studentsToMove.length) return;
+  
+  const fromIdx = CLASS_ORDER.indexOf(fromClass);
+  const nextClass = fromIdx < CLASS_ORDER.length - 1 ? CLASS_ORDER[fromIdx + 1] : null;
+  
+  const confirmMsg = nextClass 
+    ? `Are you sure you want to promote ALL students from ${fromClass} to ${nextClass}?`
+    : `Are you sure you want to GRADUATE and REMOVE all students in ${fromClass}? This cannot be undone.`;
+    
+  if (!confirm(confirmMsg)) return;
+
+  try {
+    const batch = writeBatch(db);
+    
+    for (const s of studentsToMove) {
+      const studentRef = doc(db, 'students', s.studentId);
+      if (nextClass) {
+        batch.update(studentRef, { class: nextClass });
+      } else {
+        batch.delete(studentRef);
+      }
+    }
+    
+    await batch.commit();
+    alert(`Successfully ${nextClass ? 'promoted' : 'graduated'} ${studentsToMove.length} students.`);
+    await loadStudents();
+  } catch(e) {
+    alert('Promotion failed: ' + e.message);
+  }
+};
+
+// ── DRAG DROP CSV ──
+
+const dropZone = document.getElementById('csvDropZone');
+if (dropZone) {
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag');
+    const file = e.dataTransfer.files[0];
+    if (file && file.name.endsWith('.csv')) {
+      const reader = new FileReader();
+      reader.onload = ev => parseCSV(ev.target.result);
+      reader.readAsText(file);
+    }
+  });
+}
+</script>
+</body>
+</html>
