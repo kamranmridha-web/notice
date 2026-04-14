@@ -1363,6 +1363,7 @@
                       <option>Class 8</option>
                       <option>Class 9</option>
                       <option>Class 10</option>
+                      <option>SSC Batch</option>
                       <option>Class 11</option>
                       <option>Class 12</option>
                       <option>HSC Batch</option>
@@ -1660,6 +1661,7 @@
                   <option>Class 8</option>
                   <option>Class 9</option>
                   <option>Class 10</option>
+                  <option>SSC Batch</option>
                   <option>Class 11</option>
                   <option>Class 12</option>
                   <option>HSC Batch</option>
@@ -1688,8 +1690,7 @@
 
           <div class="alert alert-info" style="display:block;margin-bottom:24px;">
             <strong>How it works:</strong> Click "Promote" next to a class to move all its students to the next level.
-            Students in <b>Class 12</b> will move to <b>HSC Batch</b>. Promoting the <b>HSC Batch</b> will permanently
-            remove them from the system.
+            Promoting <b>SSC Batch</b> or <b>HSC Batch</b> will permanently remove those students from the system (Graduation).
           </div>
 
           <div class="card">
@@ -1765,6 +1766,7 @@
               <option>Class 8</option>
               <option>Class 9</option>
               <option>Class 10</option>
+              <option>SSC Batch</option>
               <option>Class 11</option>
               <option>Class 12</option>
               <option>HSC Batch</option>
@@ -1839,7 +1841,7 @@
 
     const CLASS_ORDER = [
       'Play Group', 'Nursery', 'KG', 'Class 1', 'Class 2', 'Class 3', 'Class 4',
-      'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12',
+      'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC Batch', 'Class 11', 'Class 12',
       'HSC Batch'
     ];
 
@@ -1920,30 +1922,31 @@
 
     async function getNextStudentId() {
       try {
-        const docRef = doc(db, 'metadata', 'students');
-        const d = await getDoc(docRef);
+        // Use allStudents if available for faster & more accurate count
         let count = 0;
+        const studentsToScan = allStudents.length > 0 ? allStudents : (await getDocs(collection(db, 'students'))).docs.map(d => d.data());
+        
+        studentsToScan.forEach(s => {
+          const sid = s.studentId || "";
+          const match = sid.match(/(\d+)$/); // Find digits at the end
+          if (match) {
+            const idNum = parseInt(match[1]);
+            if (!isNaN(idNum) && idNum > count) count = idNum;
+          }
+        });
 
-        if (d.exists()) {
-          count = d.data().lastId || 0;
-        } else {
-          // Fallback: scan existing students
-          const snap = await getDocs(collection(db, 'students'));
-          snap.forEach(doc => {
-            const sid = doc.data().studentId || "";
-            // Match numbers at the end of the string
-            const match = sid.match(/(\d+)$/);
-            if (match) {
-              const idNum = parseInt(match[1]);
-              if (!isNaN(idNum) && idNum > count) count = idNum;
-            }
-          });
+        // Also check metadata for safety
+        const meta = await getDoc(doc(db, 'metadata', 'students')).catch(() => null);
+        if (meta && meta.exists()) {
+          const lastId = meta.data().lastId || 0;
+          if (lastId > count) count = lastId;
         }
+
         const next = count + 1;
         return `EISC-${next.toString().padStart(4, '0')}`;
       } catch (e) {
         console.error('Error in getNextStudentId:', e);
-        return 'EISC-0001'; // Default if anything fails
+        return 'EISC-0001';
       }
     }
 
@@ -2527,14 +2530,15 @@
 
       tbody.innerHTML = CLASS_ORDER.map((cls, idx) => {
         const count = stats[cls] || 0;
-        const nextCls = idx < CLASS_ORDER.length - 1 ? CLASS_ORDER[idx + 1] : 'REMOVE (Graduate)';
-        const btnClass = cls === 'HSC Batch' ? 'btn-danger' : 'btn-primary';
-        const btnText = cls === 'HSC Batch' ? 'Graduate All' : 'Promote Class';
+        const isTerminal = (cls === 'HSC Batch' || cls === 'SSC Batch');
+        const nextCls = isTerminal ? 'REMOVE (Graduate)' : (idx < CLASS_ORDER.length - 1 ? CLASS_ORDER[idx + 1] : 'REMOVE (Graduate)');
+        const btnClass = isTerminal ? 'btn-danger' : 'btn-primary';
+        const btnText = isTerminal ? 'Graduate' : 'Promote Class';
 
         return `
       <tr>
         <td style="font-weight:600;">${cls}</td>
-        <td><span class="badge ${cls === 'HSC Batch' ? 'badge-orange' : 'badge-blue'}">${nextCls}</span></td>
+        <td><span class="badge ${isTerminal ? 'badge-orange' : 'badge-blue'}">${nextCls}</span></td>
         <td><strong>${count}</strong> students</td>
         <td>
           <button class="btn ${btnClass} btn-sm" onclick="promoteClass('${cls}')" ${count === 0 ? 'disabled' : ''}>
@@ -2550,7 +2554,12 @@
       if (!studentsToMove.length) return;
 
       const fromIdx = CLASS_ORDER.indexOf(fromClass);
-      const nextClass = fromIdx < CLASS_ORDER.length - 1 ? CLASS_ORDER[fromIdx + 1] : null;
+      let nextClass = fromIdx < CLASS_ORDER.length - 1 ? CLASS_ORDER[fromIdx + 1] : null;
+      
+      // If it's SSC or HSC Batch, set nextClass to null to trigger graduation/deletion
+      if (fromClass === 'SSC Batch' || fromClass === 'HSC Batch') {
+        nextClass = null;
+      }
 
       const confirmMsg = nextClass
         ? `Are you sure you want to promote ALL students from ${fromClass} to ${nextClass}?`
