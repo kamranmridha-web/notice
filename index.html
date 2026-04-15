@@ -1040,25 +1040,6 @@
       border-radius: 3px;
     }
 
-    /* ── RESPONSIVE ── */
-    @media (max-width: 900px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-
-      .sidebar.open {
-        transform: translateX(0);
-      }
-
-      .main {
-        margin-left: 0;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .divider {
       height: 1px;
       background: var(--border);
@@ -1084,12 +1065,6 @@
       gap: 24px;
     }
 
-    @media (max-width: 768px) {
-      .two-col {
-        grid-template-columns: 1fr;
-      }
-    }
-
     .firebase-warning {
       background: #FFFBEB;
       border: 1px solid #FDE68A;
@@ -1101,6 +1076,297 @@
       display: flex;
       align-items: flex-start;
       gap: 8px;
+    }
+
+    /* ── MOBILE BOTTOM NAV ── */
+    .mobile-nav {
+      display: none;
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      z-index: 200;
+      padding: 6px 0 env(safe-area-inset-bottom, 6px);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.07);
+    }
+
+    .mobile-nav-inner {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .mobile-nav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      padding: 6px 10px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      color: var(--text-secondary);
+      font-family: var(--font);
+      font-size: 10px;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.15s;
+      min-width: 52px;
+    }
+
+    .mobile-nav-item svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .mobile-nav-item.active {
+      color: var(--primary);
+    }
+
+    .mobile-nav-item.active svg {
+      color: var(--primary);
+    }
+
+    /* More menu popup */
+    .mobile-more-menu {
+      display: none;
+      position: fixed;
+      bottom: 70px;
+      left: 12px;
+      right: 12px;
+      background: var(--white);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+      border: 1px solid var(--border);
+      z-index: 300;
+      padding: 8px;
+      animation: fadeUp 0.2s ease;
+    }
+
+    .mobile-more-menu.open {
+      display: block;
+    }
+
+    .mobile-more-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      border: none;
+      background: none;
+      width: 100%;
+      font-family: var(--font);
+      transition: background 0.15s;
+    }
+
+    .mobile-more-item:hover, .mobile-more-item:active {
+      background: var(--bg);
+    }
+
+    .mobile-more-item svg {
+      width: 18px;
+      height: 18px;
+      color: var(--primary);
+    }
+
+    .mobile-overlay-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 250;
+      background: rgba(0,0,0,0.2);
+    }
+
+    .mobile-overlay-bg.open {
+      display: block;
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main {
+        margin-left: 0;
+        padding-bottom: 70px;
+      }
+
+      .mobile-nav {
+        display: block;
+      }
+
+      .topbar {
+        padding: 0 16px;
+      }
+
+      .content {
+        padding: 16px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+
+      .two-col {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .stat-card {
+        padding: 14px;
+        gap: 10px;
+        flex-direction: column;
+        text-align: center;
+      }
+
+      .stat-icon {
+        width: 40px;
+        height: 40px;
+        margin: 0 auto;
+      }
+
+      .stat-icon svg {
+        width: 20px;
+        height: 20px;
+      }
+
+      .stat-num {
+        font-size: 22px;
+      }
+
+      .stat-label {
+        font-size: 11px;
+      }
+
+      .section-title {
+        font-size: 17px;
+      }
+
+      .section-sub {
+        font-size: 13px;
+        margin-bottom: 16px;
+      }
+
+      .card-header {
+        padding: 14px 16px;
+        font-size: 14px;
+      }
+
+      .card-body {
+        padding: 16px;
+      }
+
+      .topbar-title {
+        font-size: 15px;
+      }
+
+      .admin-badge {
+        font-size: 11px;
+        padding: 3px 10px;
+      }
+
+      #adminEmail {
+        display: none;
+      }
+
+      .filter-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .filter-row .search-wrap,
+      .filter-row .form-select,
+      .filter-row .form-input {
+        width: 100% !important;
+      }
+
+      .filter-row .search-wrap input {
+        width: 100% !important;
+      }
+
+      .notice-item {
+        gap: 10px;
+      }
+
+      .notice-thumb {
+        width: 44px;
+        height: 44px;
+      }
+
+      /* Table mobile: horizontal scroll with sticky first col */
+      .table-wrap {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      table {
+        min-width: 500px;
+      }
+
+      th, td {
+        padding: 10px 12px;
+        font-size: 13px;
+      }
+
+      .btn {
+        padding: 9px 16px;
+        font-size: 13px;
+      }
+
+      .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+
+      .modal {
+        max-width: 100%;
+        margin: 0 8px;
+        max-height: 92vh;
+        overflow-y: auto;
+      }
+
+      .modal-overlay {
+        padding: 16px 0;
+        align-items: flex-end;
+      }
+
+      .modal {
+        border-radius: 20px 20px 0 0;
+        margin: 0;
+        max-width: 100%;
+      }
+
+      .upload-zone {
+        padding: 20px;
+      }
+
+      #studentSearch {
+        width: 100% !important;
+      }
+
+      /* footer */
+      footer {
+        padding: 14px 16px !important;
+        font-size: 11px !important;
+      }
+    }
+
+    @media (max-width: 400px) {
+      .stats-grid {
+        grid-template-columns: 1fr 1fr;
+      }
     }
   </style>
 </head>
@@ -1220,20 +1486,22 @@
     <!-- Main -->
     <div class="main">
       <header class="topbar">
-        <div style="display:flex;align-items:center;gap:16px;">
-          <button onclick="toggleSidebar()" style="display:none;background:none;border:none;cursor:pointer;"
-            id="menuBtn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
-              <line x1="3" y1="6" x2="21" y2="6" />
-              <line x1="3" y1="12" x2="21" y2="12" />
-              <line x1="3" y1="18" x2="21" y2="18" />
-            </svg>
-          </button>
-          <span class="topbar-title" id="topbarTitle">Dashboard</span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <img src="logo.png" alt="Logo" style="width:28px;height:28px;object-fit:contain;border-radius:6px;" onerror="this.style.display='none'">
+            <span class="topbar-title" id="topbarTitle">Dashboard</span>
+          </div>
         </div>
         <div class="topbar-right">
           <span class="admin-badge">Admin</span>
           <span style="font-size:13px;color:var(--text-secondary);" id="adminEmail"></span>
+          <button onclick="doLogout()" style="background:none;border:none;cursor:pointer;padding:4px;color:var(--text-secondary);display:flex;align-items:center;" title="Logout">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+              <polyline points="16 17 21 12 16 7"/>
+              <line x1="21" y1="12" x2="9" y2="12"/>
+            </svg>
+          </button>
         </div>
       </header>
 
@@ -1363,7 +1631,6 @@
                       <option>Class 8</option>
                       <option>Class 9</option>
                       <option>Class 10</option>
-                      <option>SSC Batch</option>
                       <option>Class 11</option>
                       <option>Class 12</option>
                       <option>HSC Batch</option>
@@ -1661,7 +1928,6 @@
                   <option>Class 8</option>
                   <option>Class 9</option>
                   <option>Class 10</option>
-                  <option>SSC Batch</option>
                   <option>Class 11</option>
                   <option>Class 12</option>
                   <option>HSC Batch</option>
@@ -1690,7 +1956,8 @@
 
           <div class="alert alert-info" style="display:block;margin-bottom:24px;">
             <strong>How it works:</strong> Click "Promote" next to a class to move all its students to the next level.
-            Promoting <b>SSC Batch</b> or <b>HSC Batch</b> will permanently remove those students from the system (Graduation).
+            Students in <b>Class 12</b> will move to <b>HSC Batch</b>. Promoting the <b>HSC Batch</b> will permanently
+            remove them from the system.
           </div>
 
           <div class="card">
@@ -1721,6 +1988,52 @@
       </footer>
     </div><!-- /main -->
   </div><!-- /appScreen -->
+
+  <!-- ── MOBILE MORE MENU OVERLAY ── -->
+  <div class="mobile-overlay-bg" id="moreMenuOverlay" onclick="closeMobileMore()"></div>
+
+  <!-- ── MOBILE MORE MENU ── -->
+  <div class="mobile-more-menu" id="mobileMoreMenu">
+    <button class="mobile-more-item" onclick="mobileNav('bulkUpload')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      Bulk Upload (CSV)
+    </button>
+    <button class="mobile-more-item" onclick="mobileNav('history')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Notice History
+    </button>
+    <button class="mobile-more-item" onclick="mobileNav('promotions')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+      Promotions
+    </button>
+    <div style="height:1px;background:var(--border);margin:4px 8px;"></div>
+    <button class="mobile-more-item" onclick="doLogout()" style="color:var(--error);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--error)"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+
+  <!-- ── MOBILE BOTTOM NAV ── -->
+  <nav class="mobile-nav" id="mobileNav">
+    <div class="mobile-nav-inner">
+      <button class="mobile-nav-item active" id="mnav-dashboard" onclick="mobileNav('dashboard')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </button>
+      <button class="mobile-nav-item" id="mnav-students" onclick="mobileNav('students')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Students
+      </button>
+      <button class="mobile-nav-item" id="mnav-sendNotice" onclick="mobileNav('sendNotice')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Send
+      </button>
+      <button class="mobile-nav-item" id="mnav-more" onclick="toggleMobileMore()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+        More
+      </button>
+    </div>
+  </nav>
 
   <!-- ── EDIT STUDENT MODAL ── -->
   <div class="modal-overlay" id="editModal">
@@ -1766,7 +2079,6 @@
               <option>Class 8</option>
               <option>Class 9</option>
               <option>Class 10</option>
-              <option>SSC Batch</option>
               <option>Class 11</option>
               <option>Class 12</option>
               <option>HSC Batch</option>
@@ -1841,7 +2153,7 @@
 
     const CLASS_ORDER = [
       'Play Group', 'Nursery', 'KG', 'Class 1', 'Class 2', 'Class 3', 'Class 4',
-      'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'SSC Batch', 'Class 11', 'Class 12',
+      'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10', 'Class 11', 'Class 12',
       'HSC Batch'
     ];
 
@@ -1904,13 +2216,57 @@
       document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       document.getElementById('page-' + page).classList.add('active');
-      const titles = { dashboard: 'Dashboard', students: 'Student Management', bulkUpload: 'Bulk Upload', sendNotice: 'Send Notification', history: 'Notice History' };
+      const titles = { dashboard: 'Dashboard', students: 'Student Management', bulkUpload: 'Bulk Upload', sendNotice: 'Send Notification', history: 'Notice History', promotions: 'Promotions' };
       document.getElementById('topbarTitle').textContent = titles[page] || '';
       event.currentTarget?.classList.add('active');
       if (page === 'dashboard') loadDashboard();
       if (page === 'history') renderHistory();
       if (page === 'promotions') renderPromotionTable();
       if (page === 'students') prepareNewStudentForm();
+      // sync mobile nav
+      syncMobileNav(page);
+    };
+
+    window.mobileNav = function(page) {
+      closeMobileMore();
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById('page-' + page).classList.add('active');
+      const titles = { dashboard: 'Dashboard', students: 'Student Management', bulkUpload: 'Bulk Upload', sendNotice: 'Send Notification', history: 'Notice History', promotions: 'Promotions' };
+      document.getElementById('topbarTitle').textContent = titles[page] || '';
+      if (page === 'dashboard') loadDashboard();
+      if (page === 'history') renderHistory();
+      if (page === 'promotions') renderPromotionTable();
+      if (page === 'students') prepareNewStudentForm();
+      syncMobileNav(page);
+      // scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    function syncMobileNav(page) {
+      ['dashboard','students','sendNotice'].forEach(p => {
+        const el = document.getElementById('mnav-' + p);
+        if (el) el.classList.remove('active');
+      });
+      const morePages = ['bulkUpload','history','promotions'];
+      const moreBtn = document.getElementById('mnav-more');
+      if (moreBtn) moreBtn.classList.remove('active');
+      if (morePages.includes(page)) {
+        if (moreBtn) moreBtn.classList.add('active');
+      } else {
+        const target = document.getElementById('mnav-' + page);
+        if (target) target.classList.add('active');
+      }
+    }
+
+    window.toggleMobileMore = function() {
+      document.getElementById('mobileMoreMenu').classList.toggle('open');
+      document.getElementById('moreMenuOverlay').classList.toggle('open');
+    };
+
+    window.closeMobileMore = function() {
+      document.getElementById('mobileMoreMenu').classList.remove('open');
+      document.getElementById('moreMenuOverlay').classList.remove('open');
     };
 
     window.prepareNewStudentForm = async function () {
@@ -1922,37 +2278,34 @@
 
     async function getNextStudentId() {
       try {
-        // Use allStudents if available for faster & more accurate count
+        const docRef = doc(db, 'metadata', 'students');
+        const d = await getDoc(docRef);
         let count = 0;
-        const studentsToScan = allStudents.length > 0 ? allStudents : (await getDocs(collection(db, 'students'))).docs.map(d => d.data());
-        
-        studentsToScan.forEach(s => {
-          const sid = s.studentId || "";
-          const match = sid.match(/(\d+)$/); // Find digits at the end
-          if (match) {
-            const idNum = parseInt(match[1]);
-            if (!isNaN(idNum) && idNum > count) count = idNum;
-          }
-        });
 
-        // Also check metadata for safety
-        const meta = await getDoc(doc(db, 'metadata', 'students')).catch(() => null);
-        if (meta && meta.exists()) {
-          const lastId = meta.data().lastId || 0;
-          if (lastId > count) count = lastId;
+        if (d.exists()) {
+          count = d.data().lastId || 0;
+        } else {
+          // Fallback: scan existing students
+          const snap = await getDocs(collection(db, 'students'));
+          snap.forEach(doc => {
+            const sid = doc.data().studentId || "";
+            // Match numbers at the end of the string
+            const match = sid.match(/(\d+)$/);
+            if (match) {
+              const idNum = parseInt(match[1]);
+              if (!isNaN(idNum) && idNum > count) count = idNum;
+            }
+          });
         }
-
         const next = count + 1;
         return `EISC-${next.toString().padStart(4, '0')}`;
       } catch (e) {
         console.error('Error in getNextStudentId:', e);
-        return 'EISC-0001';
+        return 'EISC-0001'; // Default if anything fails
       }
     }
 
-    window.toggleSidebar = function () {
-      document.getElementById('sidebar').classList.toggle('open');
-    };
+    window.toggleSidebar = function () { /* legacy - not used on mobile */ };
 
     // ── DASHBOARD ──
     async function loadDashboard() {
@@ -2347,7 +2700,7 @@
           title,
           description: desc,
           imageUrl,
-          target: currentTarget === 'all' ? 'all_students' : (selectedClasses.length === 1 ? targets[0] : targetDisplay),
+          target: currentTarget === 'all' ? 'all_students' : (targets.length === 1 ? targets[0] : targetDisplay),
           targetTopics: targets,
           isPinned,
           timestamp: serverTimestamp()
@@ -2530,15 +2883,14 @@
 
       tbody.innerHTML = CLASS_ORDER.map((cls, idx) => {
         const count = stats[cls] || 0;
-        const isTerminal = (cls === 'HSC Batch' || cls === 'SSC Batch');
-        const nextCls = isTerminal ? 'REMOVE (Graduate)' : (idx < CLASS_ORDER.length - 1 ? CLASS_ORDER[idx + 1] : 'REMOVE (Graduate)');
-        const btnClass = isTerminal ? 'btn-danger' : 'btn-primary';
-        const btnText = isTerminal ? 'Graduate' : 'Promote Class';
+        const nextCls = idx < CLASS_ORDER.length - 1 ? CLASS_ORDER[idx + 1] : 'REMOVE (Graduate)';
+        const btnClass = cls === 'HSC Batch' ? 'btn-danger' : 'btn-primary';
+        const btnText = cls === 'HSC Batch' ? 'Graduate All' : 'Promote Class';
 
         return `
       <tr>
         <td style="font-weight:600;">${cls}</td>
-        <td><span class="badge ${isTerminal ? 'badge-orange' : 'badge-blue'}">${nextCls}</span></td>
+        <td><span class="badge ${cls === 'HSC Batch' ? 'badge-orange' : 'badge-blue'}">${nextCls}</span></td>
         <td><strong>${count}</strong> students</td>
         <td>
           <button class="btn ${btnClass} btn-sm" onclick="promoteClass('${cls}')" ${count === 0 ? 'disabled' : ''}>
@@ -2554,12 +2906,7 @@
       if (!studentsToMove.length) return;
 
       const fromIdx = CLASS_ORDER.indexOf(fromClass);
-      let nextClass = fromIdx < CLASS_ORDER.length - 1 ? CLASS_ORDER[fromIdx + 1] : null;
-      
-      // If it's SSC or HSC Batch, set nextClass to null to trigger graduation/deletion
-      if (fromClass === 'SSC Batch' || fromClass === 'HSC Batch') {
-        nextClass = null;
-      }
+      const nextClass = fromIdx < CLASS_ORDER.length - 1 ? CLASS_ORDER[fromIdx + 1] : null;
 
       const confirmMsg = nextClass
         ? `Are you sure you want to promote ALL students from ${fromClass} to ${nextClass}?`
